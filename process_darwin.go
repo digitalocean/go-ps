@@ -6,7 +6,6 @@ package ps
 import "C"
 
 import (
-	"strings"
 	"sync"
 	"unsafe"
 )
@@ -20,7 +19,7 @@ type DarwinProcess struct {
 	pid    int
 	ppid   int
 	binary string
-	args   string
+	args   []string
 }
 
 var _ Process = &DarwinProcess{}
@@ -37,30 +36,26 @@ func (p *DarwinProcess) Executable() string {
 	return p.binary
 }
 
-func (p *DarwinProcess) Args() string {
+func (p *DarwinProcess) Args() []string {
 	return p.args
 }
 
 //export go_darwin_append_proc
 func go_darwin_append_proc(pid C.pid_t, ppid C.pid_t, comm *C.char, argc C.int, argv ***C.char) {
-	var argStr string
-
+	args := []string{}
 	if int(argc) > 1 {
-		var argStrArr []string
 		cargs := (*[]*C.char)(unsafe.Pointer(argv))
 
 		for i := 1; i < int(argc); i++ {
-			argStrArr = append(argStrArr, C.GoString((*cargs)[i]))
+			args = append(args, C.GoString((*cargs)[i]))
 		}
-
-		argStr = strings.Join(argStrArr, " ")
 	}
 
 	proc := &DarwinProcess{
 		pid:    int(pid),
 		ppid:   int(ppid),
 		binary: C.GoString(comm),
-		args:   argStr,
+		args:   args,
 	}
 
 	darwinProcs = append(darwinProcs, proc)

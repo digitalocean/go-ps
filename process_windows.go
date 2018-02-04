@@ -57,8 +57,8 @@ func (p *WindowsProcess) Executable() string {
 	return p.exe
 }
 
-func (p *WindowsProcess) Args() string {
-	return ""
+func (p *WindowsProcess) Args() []string {
+	return nil
 }
 
 func newWindowsProcess(e *PROCESSENTRY32) *WindowsProcess {

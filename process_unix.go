@@ -22,7 +22,7 @@ type UnixProcess struct {
 	sid   int
 
 	binary string
-	args   string
+	args   []string
 }
 
 var _ Process = &UnixProcess{}
@@ -39,7 +39,7 @@ func (p *UnixProcess) Executable() string {
 	return p.binary
 }
 
-func (p *UnixProcess) Args() string {
+func (p *UnixProcess) Args() []string {
 	return p.args
 }
 
@@ -73,15 +73,16 @@ func (p *UnixProcess) Refresh() error {
 
 	// The cmdline contains NUL chars between the executable and the args
 	// and between every other args as well.
-	execArgs := bytes.SplitN(cmdBytes, []byte{'\x00'}, 2)
+	execArgs := bytes.Split(cmdBytes, []byte{'\x00'})
 
 	// The binary name has to be pulled from the cmdline. The version in /proc/<pid>/stat
 	// is a truncated version of the executable for large names and will show an incomplete
 	// name.
 	p.binary = string(execArgs[0])
 
-	if len(execArgs) > 1 {
-		p.args = string(execArgs[1])
+	p.args = []string{}
+	for i := 1; i < len(execArgs); i++ {
+		p.args = append(p.args, string(execArgs[i]))
 	}
 
 	return nil
