@@ -125,8 +125,8 @@ func (p *UnixProcess) Executable() string {
 	return p.binary
 }
 
-func (p *UnixProcess) Args() string {
-	return ""
+func (p *UnixProcess) Args() []string {
+	return nil
 }
 
 // Refresh reloads all the data associated with this process.

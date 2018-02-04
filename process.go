@@ -22,7 +22,7 @@ type Process interface {
 
 	// Args contain the arguments passed along with the executable name
 	// for this process.
-	Args() string
+	Args() []string
 }
 
 // Processes returns all processes.
